@@ -1,11 +1,52 @@
-import { useState } from "react";
-import { skillsCatalog } from "../../assets/assets";
+import { useMemo, useState } from "react";
+import { skillsCatalog, type Skill } from "../../assets/assets";
 
 interface SkillsSectionProps {
   selectedSkills: string[];
   onClear: () => void;
   onToggle: (skillName: string) => void;
 }
+
+interface TechnologyLogoProps {
+  skill: Skill;
+  failedImageNames: Record<string, boolean>;
+  onImageError: (skillName: string) => void;
+  sizeClassName: string;
+}
+
+const TechnologyLogo = ({
+  skill,
+  failedImageNames,
+  onImageError,
+  sizeClassName,
+}: TechnologyLogoProps) => {
+  const hasFailed = failedImageNames[skill.name];
+
+  if (hasFailed) {
+    return (
+      <span
+        aria-label={`${skill.name} logo unavailable`}
+        className={`material-symbols-outlined flex items-center justify-center text-text-muted ${sizeClassName}`}
+        role="img"
+        title={skill.name}
+      >
+        image_not_supported
+      </span>
+    );
+  }
+
+  return (
+    <img
+      alt={skill.name}
+      className={`${sizeClassName} object-contain`}
+      draggable={false}
+      loading="lazy"
+      onError={() => onImageError(skill.name)}
+      src={skill.image}
+      title={skill.name}
+    />
+  );
+};
 
 const SkillsSection = ({
   selectedSkills,
@@ -14,8 +55,21 @@ const SkillsSection = ({
 }: SkillsSectionProps) => {
   const [isOpen, setIsOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [failedImageNames, setFailedImageNames] = useState<
+    Record<string, boolean>
+  >({});
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const skillByName = useMemo(
+    () =>
+      new Map(
+        skillsCatalog.flatMap((category) =>
+          category.skills.map((skill) => [skill.name, skill] as const),
+        ),
+      ),
+    [],
+  );
 
   const visibleCategories = skillsCatalog
     .map((category) => ({
@@ -25,6 +79,19 @@ const SkillsSection = ({
       ),
     }))
     .filter((category) => category.skills.length > 0);
+
+  const handleImageError = (skillName: string) => {
+    setFailedImageNames((current) => {
+      if (current[skillName]) {
+        return current;
+      }
+
+      return {
+        ...current,
+        [skillName]: true,
+      };
+    });
+  };
 
   return (
     <section className="overflow-hidden rounded-xl border border-border-default bg-bg-primary">
@@ -52,10 +119,10 @@ const SkillsSection = ({
       </button>
 
       <div
+        aria-hidden={!isOpen}
         className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
           isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         }`}
-        aria-hidden={!isOpen}
         inert={!isOpen}
       >
         <div className="min-h-0 overflow-hidden">
@@ -66,19 +133,19 @@ const SkillsSection = ({
               </span>
 
               <input
-                type="text"
-                value={searchQuery}
+                className="w-full rounded-lg border border-border-default bg-bg-primary py-2 pl-10 pr-9 text-sm text-text-primary placeholder:text-text-muted outline-none transition focus:border-border-active focus:ring-2 focus:ring-primary-tint"
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search technologies (e.g., Python, React)..."
-                className="w-full rounded-lg border border-border-default bg-bg-primary py-2 pl-10 pr-9 text-sm text-text-primary placeholder:text-text-muted outline-none transition focus:border-border-active focus:ring-2 focus:ring-primary-tint"
+                type="text"
+                value={searchQuery}
               />
 
               {searchQuery && (
                 <button
-                  type="button"
                   aria-label="Clear search"
-                  onClick={() => setSearchQuery("")}
                   className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-text-muted transition hover:text-text-primary"
+                  onClick={() => setSearchQuery("")}
+                  type="button"
                 >
                   <span className="material-symbols-outlined text-[16px]">
                     close
@@ -102,25 +169,47 @@ const SkillsSection = ({
                 </button>
               </div>
 
-              <div className="flex min-h-7 flex-wrap items-center gap-1.5">
+              <div className="flex min-h-9 flex-wrap items-center gap-2">
                 {selectedSkills.length > 0 ? (
-                  selectedSkills.map((skillName) => (
-                    <span
-                      className="inline-flex items-center gap-1 rounded-md border border-border-active/40 bg-surface-selected px-2.5 py-1 text-xs font-medium text-primary-dark"
-                      key={skillName}
-                    >
-                      {skillName}
+                  selectedSkills.map((skillName) => {
+                    const skill = skillByName.get(skillName);
 
-                      <button
-                        aria-label={`Remove ${skillName}`}
-                        className="text-base leading-none text-primary transition hover:text-error"
-                        onClick={() => onToggle(skillName)}
-                        type="button"
+                    return (
+                      <span
+                        className="inline-flex h-10 items-center gap-1 rounded-md border border-border-active/40 bg-surface-selected px-1.5 text-primary-dark"
+                        key={skillName}
+                        title={skillName}
                       >
-                        ×
-                      </button>
-                    </span>
-                  ))
+                        {skill ? (
+                          <TechnologyLogo
+                            failedImageNames={failedImageNames}
+                            onImageError={handleImageError}
+                            sizeClassName="h-7 w-7"
+                            skill={skill}
+                          />
+                        ) : (
+                          <span
+                            aria-label={`${skillName} logo unavailable`}
+                            className="material-symbols-outlined flex h-7 w-7 items-center justify-center text-text-muted"
+                            role="img"
+                            title={skillName}
+                          >
+                            image_not_supported
+                          </span>
+                        )}
+
+                        <button
+                          aria-label={`Remove ${skillName}`}
+                          className="material-symbols-outlined flex h-6 w-6 items-center justify-center rounded text-[16px] text-primary transition hover:text-error"
+                          onClick={() => onToggle(skillName)}
+                          title={`Remove ${skillName}`}
+                          type="button"
+                        >
+                          close
+                        </button>
+                      </span>
+                    );
+                  })
                 ) : (
                   <span className="text-xs italic text-text-muted">
                     No skills selected yet. Click cards below to add.
@@ -136,29 +225,32 @@ const SkillsSection = ({
                     {category.name}
                   </h3>
 
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6">
                     {category.skills.map((skill) => {
                       const isSelected = selectedSkills.includes(skill.name);
 
                       return (
                         <button
+                          aria-label={`${isSelected ? "Deselect" : "Select"} ${
+                            skill.name
+                          }`}
                           aria-pressed={isSelected}
-                          className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs font-medium transition ${
+                          className={`flex aspect-square items-center justify-center rounded-lg border p-2 transition ${
                             isSelected
                               ? "border-border-active bg-surface-selected text-primary-dark ring-1 ring-primary/20"
                               : "border-border-default bg-bg-primary text-text-secondary hover:border-border-hover"
                           }`}
                           key={skill.id}
                           onClick={() => onToggle(skill.name)}
+                          title={skill.name}
                           type="button"
                         >
-                          <span
-                            className={`h-2 w-2 shrink-0 rounded-full ${
-                              isSelected ? "bg-primary" : "bg-border-hover"
-                            }`}
+                          <TechnologyLogo
+                            failedImageNames={failedImageNames}
+                            onImageError={handleImageError}
+                            sizeClassName="h-8 w-8"
+                            skill={skill}
                           />
-
-                          <span className="truncate">{skill.name}</span>
                         </button>
                       );
                     })}
