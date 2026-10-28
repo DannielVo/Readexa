@@ -1,52 +1,12 @@
 import { useMemo, useState } from "react";
-import { skillsCatalog, type Skill } from "../../assets/assets";
+import { skillsCatalog } from "../../assets/assets";
+import TechnologyLogo from "../common/TechnologyLogo";
 
 interface SkillsSectionProps {
   selectedSkills: string[];
   onClear: () => void;
   onToggle: (skillName: string) => void;
 }
-
-interface TechnologyLogoProps {
-  skill: Skill;
-  failedImageNames: Record<string, boolean>;
-  onImageError: (skillName: string) => void;
-  sizeClassName: string;
-}
-
-const TechnologyLogo = ({
-  skill,
-  failedImageNames,
-  onImageError,
-  sizeClassName,
-}: TechnologyLogoProps) => {
-  const hasFailed = failedImageNames[skill.name];
-
-  if (hasFailed) {
-    return (
-      <span
-        aria-label={`${skill.name} logo unavailable`}
-        className={`material-symbols-outlined flex items-center justify-center text-text-muted ${sizeClassName}`}
-        role="img"
-        title={skill.name}
-      >
-        image_not_supported
-      </span>
-    );
-  }
-
-  return (
-    <img
-      alt={skill.name}
-      className={`${sizeClassName} object-contain`}
-      draggable={false}
-      loading="lazy"
-      onError={() => onImageError(skill.name)}
-      src={skill.image}
-      title={skill.name}
-    />
-  );
-};
 
 const SkillsSection = ({
   selectedSkills,
@@ -55,9 +15,6 @@ const SkillsSection = ({
 }: SkillsSectionProps) => {
   const [isOpen, setIsOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [failedImageNames, setFailedImageNames] = useState<
-    Record<string, boolean>
-  >({});
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
@@ -79,19 +36,6 @@ const SkillsSection = ({
       ),
     }))
     .filter((category) => category.skills.length > 0);
-
-  const handleImageError = (skillName: string) => {
-    setFailedImageNames((current) => {
-      if (current[skillName]) {
-        return current;
-      }
-
-      return {
-        ...current,
-        [skillName]: true,
-      };
-    });
-  };
 
   return (
     <section className="overflow-hidden rounded-xl border border-border-default bg-bg-primary">
@@ -182,8 +126,6 @@ const SkillsSection = ({
                       >
                         {skill ? (
                           <TechnologyLogo
-                            failedImageNames={failedImageNames}
-                            onImageError={handleImageError}
                             sizeClassName="h-7 w-7"
                             skill={skill}
                           />
@@ -246,8 +188,6 @@ const SkillsSection = ({
                           type="button"
                         >
                           <TechnologyLogo
-                            failedImageNames={failedImageNames}
-                            onImageError={handleImageError}
                             sizeClassName="h-8 w-8"
                             skill={skill}
                           />
