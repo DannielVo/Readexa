@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { skillsCatalog } from "../../assets/assets";
 import type { ReadmeProfile } from "../../assets/dummyDB";
+import TechnologyLogo from "../common/TechnologyLogo";
 
 interface PreviewPanelProps {
   profile: ReadmeProfile;
@@ -24,19 +26,24 @@ JavaScript · TypeScript · React · Node.js`;
 const PreviewPanel = ({ profile }: PreviewPanelProps) => {
   const [activeTab, setActiveTab] = useState<PreviewTab>("rendered");
 
-  const tabClassName = (tab: "rendered" | "markdown") => {
+  const skillByName = useMemo(
+    () =>
+      new Map(
+        skillsCatalog.flatMap((category) =>
+          category.skills.map((skill) => [skill.name, skill] as const),
+        ),
+      ),
+    [],
+  );
+
+  const tabClassName = (tab: PreviewTab) => {
     const isActive = activeTab === tab;
 
-    return `
-    rounded-md px-4 py-2
-    text-sm font-medium
-    transition-colors duration-200
-    ${
+    return `rounded-md px-4 py-2 text-sm font-medium transition-colors duration-200 ${
       isActive
         ? "bg-primary text-text-on-primary shadow-sm"
         : "bg-transparent text-text-secondary hover:bg-bg-secondary hover:text-text-primary"
-    }
-  `;
+    }`;
   };
 
   return (
@@ -46,19 +53,19 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
 
         <div className="inline-flex h-11 items-center rounded-lg border border-border-default bg-bg-tertiary p-1">
           <button
-            type="button"
+            aria-pressed={activeTab === "rendered"}
             className={tabClassName("rendered")}
             onClick={() => setActiveTab("rendered")}
-            aria-pressed={activeTab === "rendered"}
+            type="button"
           >
             Rendered
           </button>
 
           <button
-            type="button"
+            aria-pressed={activeTab === "markdown"}
             className={tabClassName("markdown")}
             onClick={() => setActiveTab("markdown")}
-            aria-pressed={activeTab === "markdown"}
+            type="button"
           >
             Markdown
           </button>
@@ -87,6 +94,7 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
                 {profile.work.trim() && (
                   <li className="flex items-start gap-2">
                     <span>🔭</span>
+
                     <span>
                       I'm currently working on{" "}
                       {profile.url.trim() ? (
@@ -108,6 +116,7 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
                 {profile.learn.trim() && (
                   <li className="flex items-start gap-2">
                     <span>🌱</span>
+
                     <span>
                       I'm currently learning <strong>{profile.learn}</strong>
                     </span>
@@ -117,6 +126,7 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
                 {profile.collab.trim() && (
                   <li className="flex items-start gap-2">
                     <span>👯</span>
+
                     <span>
                       I'm looking to collaborate on{" "}
                       <strong>{profile.collab}</strong>
@@ -133,15 +143,35 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
 
               <div className="flex flex-wrap gap-2">
                 {profile.skills.length > 0 ? (
-                  profile.skills.map((skill) => (
-                    <span
-                      className="inline-flex items-center gap-1.5 rounded-md border border-border-default bg-surface-card px-3 py-1 text-xs font-semibold text-text-primary shadow-sm"
-                      key={skill}
-                    >
-                      <span className="h-2 w-2 rounded-full bg-primary" />
-                      {skill}
-                    </span>
-                  ))
+                  profile.skills.map((skillName) => {
+                    const skill = skillByName.get(skillName);
+
+                    return (
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-md border border-border-default bg-surface-card px-3 py-1 text-xs font-semibold text-text-primary shadow-sm"
+                        key={skillName}
+                        title={skillName}
+                      >
+                        {skill ? (
+                          <TechnologyLogo
+                            sizeClassName="h-5 w-5"
+                            skill={skill}
+                          />
+                        ) : (
+                          <span
+                            aria-label={`${skillName} logo unavailable`}
+                            className="material-symbols-outlined flex h-5 w-5 items-center justify-center text-[16px] text-text-muted"
+                            role="img"
+                            title={skillName}
+                          >
+                            image_not_supported
+                          </span>
+                        )}
+
+                        <span>{skillName}</span>
+                      </span>
+                    );
+                  })
                 ) : (
                   <span className="text-xs italic text-text-muted">
                     Select technologies in the editor to showcase badges.
@@ -149,35 +179,9 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
                 )}
               </div>
             </section>
-
-            <div className="mt-10 flex flex-col justify-between gap-3 border-t border-border-default pt-6 text-xs text-text-muted sm:flex-row sm:items-center">
-              <span>
-                README Generator Output Stats • {profile.skills.length} badges
-                rendered
-              </span>
-
-              <span className="font-mono text-primary">
-                Activity Index: ╱╲╱╲
-              </span>
-            </div>
           </article>
         ) : (
           <article className="mx-auto w-full max-w-3xl overflow-x-auto rounded-xl bg-slate-900 p-5 font-mono text-sm text-slate-100 shadow-inner">
-            <div className="mb-3 flex items-center justify-between border-b border-slate-700/60 pb-3 text-xs text-slate-400">
-              <span>
-                <span className="mr-1 text-rose-500">●</span>
-                <span className="mr-1 text-amber-400">●</span>
-                <span className="mr-3 text-emerald-400">●</span>
-                README.md
-              </span>
-
-              <span className="uppercase tracking-wider">Mock Markdown</span>
-            </div>
-
-            <p className="mb-4 rounded-md border border-amber-400/30 bg-amber-400/10 p-3 font-sans text-xs text-amber-200">
-              Markdown generation is intentionally not implemented yet.
-            </p>
-
             <pre className="whitespace-pre-wrap leading-relaxed text-emerald-300">
               {mockMarkdown}
             </pre>
@@ -186,10 +190,6 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-border-default bg-bg-primary px-5 py-3.5">
-        <span className="hidden text-xs text-text-muted md:block">
-          Instantly updates with every keystroke
-        </span>
-
         <div className="ml-auto flex w-full gap-2.5 md:w-auto">
           <button
             className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-4 py-2 text-sm font-semibold text-text-muted opacity-60 md:flex-none"
@@ -197,7 +197,10 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
             title="Not implemented yet"
             type="button"
           >
-            ⧉ Copy Markdown
+            <span className="material-symbols-outlined text-[18px]">
+              content_copy
+            </span>
+            Copy Markdown
           </button>
 
           <button
@@ -206,7 +209,10 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
             title="Not implemented yet"
             type="button"
           >
-            ↓ Download README
+            <span className="material-symbols-outlined text-[18px]">
+              download
+            </span>
+            Download README
           </button>
         </div>
       </footer>
