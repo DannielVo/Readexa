@@ -15,12 +15,5 @@ export const defaultReadme: ReadmeProfile = {
   url: "https://github.com/username/readexa",
   learn: "TypeScript and Next.js",
   collab: "Open-source projects",
-  skills: [
-    "JavaScript",
-    "TypeScript",
-    "React",
-    "Node.js",
-    "PostgreSQL",
-    "Docker",
-  ],
+  skills: ["JavaScript", "TypeScript", "Python"],
 };

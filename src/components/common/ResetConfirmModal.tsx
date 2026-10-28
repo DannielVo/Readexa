@@ -40,8 +40,8 @@ const ResetConfirmModal = ({
       aria-labelledby="reset-modal-title"
       className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
     >
-      <div className="w-lg shrink-0 rounded-xl border border-border-default bg-bg-primary p-6 shadow-2xl">
-        {/* Modal Header */}
+      <div className="w-sm md:w-lg shrink-0 rounded-xl border border-border-default bg-bg-primary p-6 shadow-2xl">
+        {/* Header */}
         <div className="mb-4 flex items-start justify-between">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-50 text-error">
             <span className="material-symbols-outlined text-[24px]">
@@ -59,7 +59,7 @@ const ResetConfirmModal = ({
           </button>
         </div>
 
-        {/* Modal Title */}
+        {/* Title */}
         <h2
           id="reset-modal-title"
           className="mb-2 text-lg font-bold text-text-primary"
@@ -67,13 +67,13 @@ const ResetConfirmModal = ({
           Reset README?
         </h2>
 
-        {/* Modal Description */}
+        {/* Description */}
         <p className="mb-6 text-sm leading-relaxed text-text-secondary">
           This will remove your current changes and reset the editor to its
           default state. This action cannot be undone.
         </p>
 
-        {/* Modal Actions */}
+        {/* Actions */}
         <div className="flex items-center justify-end gap-3">
           <button
             type="button"
