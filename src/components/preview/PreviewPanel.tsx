@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { skillsCatalog } from "../../assets/assets";
 import type { ReadmeProfile } from "../../assets/dummyDB";
+import { generateMarkdown } from "../../utils/markdown";
 import TechnologyLogo from "../common/TechnologyLogo";
 
 interface PreviewPanelProps {
@@ -9,22 +10,10 @@ interface PreviewPanelProps {
 
 type PreviewTab = "rendered" | "markdown";
 
-const mockMarkdown = `# Hi, I'm Alex 👋
-
-A passionate software developer
-
-## About Me
-
-- 🔭 I'm currently working on Readexa — GitHub README Generator
-- 🌱 I'm currently learning TypeScript and Next.js
-- 👯 I'm looking to collaborate on Open-source projects
-
-## Skills & Technologies
-
-JavaScript · TypeScript · React · Node.js`;
-
 const PreviewPanel = ({ profile }: PreviewPanelProps) => {
   const [activeTab, setActiveTab] = useState<PreviewTab>("rendered");
+
+  const markdown = generateMarkdown(profile);
 
   const skillByName = useMemo(
     () =>
@@ -183,7 +172,7 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
         ) : (
           <article className="mx-auto w-full max-w-3xl overflow-x-auto rounded-xl bg-slate-900 p-5 font-mono text-sm text-slate-100 shadow-inner">
             <pre className="whitespace-pre-wrap leading-relaxed text-emerald-300">
-              {mockMarkdown}
+              {markdown}
             </pre>
           </article>
         )}
