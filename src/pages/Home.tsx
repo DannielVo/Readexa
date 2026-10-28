@@ -54,7 +54,7 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] bg-bg-tertiary pt-20">
+    <div className="bg-bg-tertiary pt-20">
       <MobileViewToggle
         activePanel={activeMobilePanel}
         onChange={setActiveMobilePanel}
