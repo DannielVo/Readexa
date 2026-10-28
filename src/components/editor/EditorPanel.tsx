@@ -28,7 +28,9 @@ const EditorPanel = ({
           onClick={onReset}
           className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-border-default bg-bg-primary px-3 text-sm font-medium text-text-secondary transition-colors hover:border-error/30 hover:bg-red-50 hover:text-error"
         >
-          <span>↻</span>
+          <span className="material-symbols-outlined text-[18px]">
+            restart_alt
+          </span>
           <span>Reset</span>
         </button>
       </header>

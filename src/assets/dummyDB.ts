@@ -9,8 +9,8 @@ export interface ReadmeProfile {
 }
 
 export const defaultReadme: ReadmeProfile = {
-  title: "Hi, I'm Alex 👋",
-  subtitle: "A passionate software developer",
+  title: "Hi, I'm Danniel 👋",
+  subtitle: "A software developer",
   work: "Readexa — GitHub README Generator",
   url: "https://github.com/username/readexa",
   learn: "TypeScript and Next.js",
