@@ -35,7 +35,7 @@ const EditorPanel = ({
         </button>
       </header>
 
-      <div className="flex-1 space-y-6 overflow-y-auto p-5">
+      <div className="no-scrollbar min-h-0 flex-1 space-y-6 overflow-y-auto p-5">
         <ProfileFields profile={profile} onChange={onChange} />
 
         <AboutMeSection profile={profile} onChange={onChange} />

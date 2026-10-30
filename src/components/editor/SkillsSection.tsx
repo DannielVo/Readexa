@@ -64,7 +64,7 @@ const SkillsSection = ({
 
       <div
         aria-hidden={!isOpen}
-        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+        className={`grid transition-[grid-template-rows,opacity] duration-700 ease-in-out ${
           isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         }`}
         inert={!isOpen}
