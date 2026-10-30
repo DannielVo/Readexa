@@ -31,6 +31,36 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
     }
   };
 
+  const handleDownloadReadme = () => {
+    let downloadUrl: string | null = null;
+    let downloadLink: HTMLAnchorElement | null = null;
+
+    try {
+      const blob = new Blob([markdown], {
+        type: "text/markdown;charset=utf-8",
+      });
+
+      downloadUrl = URL.createObjectURL(blob);
+      downloadLink = document.createElement("a");
+
+      downloadLink.href = downloadUrl;
+      downloadLink.download = "README.md";
+
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+
+      // showToast("README.md download started!", "success");
+    } catch {
+      showToast("Failed to download README.md.", "error");
+    } finally {
+      downloadLink?.remove();
+
+      if (downloadUrl) {
+        URL.revokeObjectURL(downloadUrl);
+      }
+    }
+  };
+
   const skillByName = useMemo(
     () =>
       new Map(
@@ -208,9 +238,8 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
           </button>
 
           <button
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-text-on-primary opacity-60 md:flex-none"
-            disabled
-            title="Not implemented yet"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-text-on-primary transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary-tint focus:ring-offset-2 md:flex-none"
+            onClick={handleDownloadReadme}
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">
