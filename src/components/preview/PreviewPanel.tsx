@@ -3,6 +3,7 @@ import { skillsCatalog } from "../../assets/assets";
 import type { ReadmeProfile } from "../../assets/dummyDB";
 import { generateMarkdown } from "../../utils/markdown";
 import TechnologyLogo from "../common/TechnologyLogo";
+import { useToast } from "../../context/ToastContext";
 
 interface PreviewPanelProps {
   profile: ReadmeProfile;
@@ -11,9 +12,24 @@ interface PreviewPanelProps {
 type PreviewTab = "rendered" | "markdown";
 
 const PreviewPanel = ({ profile }: PreviewPanelProps) => {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<PreviewTab>("rendered");
 
   const markdown = generateMarkdown(profile);
+
+  const handleCopyMarkdown = async () => {
+    if (!navigator.clipboard?.writeText) {
+      showToast("Failed to copy Markdown.", "error");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(markdown);
+      showToast("Markdown copied to clipboard!", "success");
+    } catch {
+      showToast("Failed to copy Markdown.", "error");
+    }
+  };
 
   const skillByName = useMemo(
     () =>
@@ -181,9 +197,8 @@ const PreviewPanel = ({ profile }: PreviewPanelProps) => {
       <footer className="flex items-center justify-between gap-3 border-t border-border-default bg-bg-primary px-5 py-3.5">
         <div className="ml-auto flex w-full gap-2.5 md:w-auto">
           <button
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-4 py-2 text-sm font-semibold text-text-muted opacity-60 md:flex-none"
-            disabled
-            title="Not implemented yet"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-border-default bg-bg-secondary px-4 py-2 text-sm font-semibold text-text-muted transition hover:border-border-hover hover:bg-bg-primary focus:outline-none focus:ring-2 focus:ring-primary-tint md:flex-none"
+            onClick={handleCopyMarkdown}
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">
